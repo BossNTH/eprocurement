@@ -2,10 +2,6 @@
 session_start();
 require_once("../connect.php");
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../login.php");
-  exit;
-}
 
 $id = intval($_POST['employee_id'] ?? 0);
 $full_name = trim($_POST['full_name'] ?? '');

@@ -8,7 +8,7 @@ $conn->set_charset('utf8mb4');
 function inpost($k){ return trim($_POST[$k] ?? ''); }
 
 // ===== รับค่าจากฟอร์ม =====
-$email       = strtolower(inpost('username'));  // ใช้อีเมลเป็น username
+$email       = strtolower(inpost('email'));  // ใช้อีเมลเป็น username
 $password    = inpost('password');
 $confirm     = inpost('confirm_password');
 $sup_name    = inpost('supplier_name');
@@ -71,7 +71,7 @@ try {
 
   $conn->commit();
 
-  echo "<script>alert('✅ สมัครสมาชิกผู้ขายเรียบร้อย'); window.location='login.php';</script>";
+  echo "<script>alert('✅ สมัครสมาชิกผู้ขายเรียบร้อย'); window.location='index.php';</script>";
   exit;
 
 } catch (Throwable $e) {

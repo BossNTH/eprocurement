@@ -1,10 +1,6 @@
 <?php
 // product_category_delete.php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
-    exit();
-}
 
 require_once("../connect.php");
 
@@ -30,10 +26,10 @@ if (isset($_GET['id'])) {
         }
     }
     
-    header("Location: product_category_add.php");
+    header("Location: productCategoryManagement.php");
     exit();
 } else {
-    header("Location: product_category_add.php");
+    header("Location: productCategoryManagement.php");
     exit();
 }
 ?>

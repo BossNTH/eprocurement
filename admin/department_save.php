@@ -2,7 +2,7 @@
 session_start();
 include("../connect.php");
 
-$dept_name = $_POST['dept_name'];
+$dept_name = $_POST['name'];
 
 $sql = "INSERT INTO departments (name) VALUES (?)";
 $stmt = $conn->prepare($sql);

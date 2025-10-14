@@ -1,10 +1,7 @@
 <!-- partial-emp_header.php -->
 <?php
 session_start();
-if (!isset($_SESSION['employee_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
+
 $emp_name = $_SESSION['employee_name'] ?? 'พนักงานทั่วไป';
 ?>
 
@@ -125,12 +122,12 @@ body {
 
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
   <div class="sidebar-brand-wrapper">
-    <a class="brand-logo" href="emp_dashboard.php">พนักงานทั่วไป</a>
+    <a class="brand-logo" href="dashboard.php">พนักงานทั่วไป</a>
   </div>
 
   <div class="nav-profile">
     <div class="nav-profile-image">
-      <img src="../assets/faces/R.png" alt="profile">
+      <img src="../assets/images/faces/R.png" alt="profile">
     </div>
     <div class="nav-profile-text">
       <span class="font-weight-bold"><?= htmlspecialchars($emp_name) ?></span>
@@ -149,7 +146,7 @@ body {
     </li>
 
     <li class="nav-item">
-      <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=='emp_pr_manage.php'?'active':'' ?>" href="emp_pr_manage.php">
+      <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=='pr_manage.php'?'active':'' ?>" href="pr_manage.php">
         <span class="menu-icon"><i class="mdi mdi-file-document-box"></i></span>
         <span class="menu-title">จัดการขอซื้อสินค้า</span>
       </a>

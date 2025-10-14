@@ -1,9 +1,7 @@
 <?php
 // Devolper/department_edit.php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../login.php"); exit();
-}
+
 require_once "../connect.php";
 
 $deptId = intval($_GET['id'] ?? 0);

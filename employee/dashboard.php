@@ -1,169 +1,196 @@
 <?php
+require_once "../connect.php";
 require_once __DIR__ . "/partials/emp_header.php";
-$db = $GLOBALS['conn'] ?? null;
-if (!$db) { require_once __DIR__ . "/../connect.php"; $db = $conn; }
 
-$userId = (int)($_SESSION['user_id'] ?? 0);
-$displayName = $_SESSION['fullname'] ?? $_SESSION['username'] ?? "พนักงาน";
-if ($userId <= 0) { header("Location: ../index.php"); exit; }
+// ===== ดึงข้อมูล Dashboard ของพนักงาน =====
+$emp_id = $_SESSION['employee_id'] ?? 0;
 
-/* === หา employee_id โดย map users.username -> employees.employee_code
-      (และ fallback ตามอีเมล หากคุณใช้แบบนั้น) === */
-$empId = (int)($_SESSION['employee_id'] ?? 0);
-if ($empId <= 0) {
-  $stmt = $db->prepare("
-    SELECT e2.employee_id AS employee_id
-    FROM users u
-    LEFT JOIN employees e2 ON e2.email = u.email            -- fallback กรณีแม็ปด้วยอีเมล
-    WHERE u.user_id = ?
-    LIMIT 1
-  ");
-  $stmt->bind_param("i", $userId);
-  $stmt->execute();
-  $row = $stmt->get_result()->fetch_assoc();
-  $stmt->close();
+$total = $pending = $approved = $rejected = 0;
 
-  if (empty($row['employee_id'])) {
-    die('<div class="alert alert-danger m-4">
-      ไม่พบการแม็ปผู้ใช้กับพนักงาน (ตรวจสอบว่า users.username = employees.employee_code หรือ users.email = employees.email)
-    </div>');
-  }
-  $empId = (int)$row['employee_id'];
-  $_SESSION['employee_id'] = $empId;
-}
+// นับจำนวน PR ตามสถานะ
+$stmt = $conn->prepare("SELECT 
+    COUNT(*) total,
+    SUM(status='DRAFT') pending,
+    SUM(status='APPROVE') approved,
+    SUM(status='REJECTED') rejected
+  FROM purchase_requisitions");
+//$stmt->bind_param("i", $emp_id);
+$stmt->execute();
+$stmt->bind_result($total, $pending, $approved, $rejected);
+$stmt->fetch();
+$stmt->close();
 
-/* === ตัวเลขสรุป (กรองด้วย employee_id) === */
-$myTotal = $myPending = $myApproved = $myRejected = 0;
-
-$stmt = $db->prepare("SELECT COUNT(*) c FROM purchase_requisitions WHERE pr_no=?");
-$stmt->bind_param("i", $empId); $stmt->execute();
-$myTotal = (int)$stmt->get_result()->fetch_assoc()['c']; $stmt->close();
-
-$stmt = $db->prepare("SELECT COUNT(*) c FROM purchase_requisitions WHERE pr_no=? AND status='submitted'");
-$stmt->bind_param("i", $empId); $stmt->execute();
-$myPending = (int)$stmt->get_result()->fetch_assoc()['c']; $stmt->close();
-
-$stmt = $db->prepare("SELECT COUNT(*) c FROM purchase_requisitions WHERE pr_no=? AND status='approved'");
-$stmt->bind_param("i", $empId); $stmt->execute();
-$myApproved = (int)$stmt->get_result()->fetch_assoc()['c']; $stmt->close();
-
-$stmt = $db->prepare("SELECT COUNT(*) c FROM purchase_requisitions WHERE pr_no=? AND status='rejected'");
-$stmt->bind_param("i", $empId); $stmt->execute();
-$myRejected = (int)$stmt->get_result()->fetch_assoc()['c']; $stmt->close();
-
-/* === รายการล่าสุดของฉัน (คอลัมน์ตามสคีมาจริง) === */
+// รายการล่าสุด
 $recent = [];
-$stmt = $db->prepare("
+$stmt = $conn->prepare("
   SELECT pr_no, status, request_date
   FROM purchase_requisitions
-  WHERE pr_no=?
   ORDER BY request_date DESC
   LIMIT 5
 ");
-$stmt->bind_param("i", $empId);
+//$stmt->bind_param("i", $emp_id);
 $stmt->execute();
 $res = $stmt->get_result();
-while ($row = $res->fetch_assoc()) { $recent[] = $row; }
+while ($row = $res->fetch_assoc()) $recent[] = $row;
 $stmt->close();
-
-function status_badge_class($status) {
-  switch (strtolower($status)) {
-    case 'approved': return 'bg-success';
-    case 'submitted': return 'bg-warning text-dark';
-    case 'rejected': return 'bg-danger';
-    default: return 'bg-secondary';
-  }
-}
 ?>
 
-<!-- ====== CONTENT (ใส่ส่วน HTML แสดงผลกลับมา) ====== -->
-<div class="container-fluid py-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-      <h4 class="mb-0">สวัสดี, <?= htmlspecialchars($displayName) ?></h4>
-      <small class="text-muted">หน้าหลักพนักงาน • อัปเดตล่าสุด <?= date('d M Y H:i') ?></small>
-    </div>
-  </div>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แดชบอร์ดพนักงาน | ระบบจัดซื้อสมุนไพร</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Prompt', sans-serif;
+      margin: 0;
+      padding-left: 260px; /* เผื่อพื้นที่ sidebar */
+    }
+
+    .main-content {
+      padding: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #5eead4;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ==== Card style ==== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid rgba(20,184,166,0.2);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: #14b8a6;
+    }
+
+    .card h3 {
+      color: #e0f2fe;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .card .value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #5eead4;
+    }
+
+    /* ==== Table style ==== */
+    .recent-section {
+      margin-top: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: #1e3a8a;
+      color: #e0f2fe;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    tbody tr:hover {
+      background-color: rgba(20,184,166,0.1);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: white;
+    }
+
+    .badge.submitted { background: #facc15; color:#000; }
+    .badge.manager_approved { background: #10b981; }
+    .badge.rejected { background: #ef4444; }
+    .badge.draft { background: #64748b; }
+  </style>
+</head>
+<body>
+
+<div class="main-content">
+  <h1 class="page-title">📊 แดชบอร์ดพนักงาน</h1>
 
   <!-- KPI Cards -->
-  <div class="row g-3">
-    <div class="col-6 col-md-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="text-muted small">PR ทั้งหมด</div>
-          <div class="display-6 fw-bold"><?= $myTotal ?></div>
-        </div>
-      </div>
+  <div class="card-grid">
+    <div class="card">
+      <h3>ใบขอซื้อทั้งหมด</h3>
+      <div class="value"><?= $total ?></div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="text-muted small">รออนุมัติ (submitted)</div>
-          <div class="display-6 fw-bold"><?= $myPending ?></div>
-        </div>
-      </div>
+    <div class="card">
+      <h3>รออนุมัติ</h3>
+      <div class="value"><?= $pending ?></div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="text-muted small">อนุมัติแล้ว</div>
-          <div class="display-6 fw-bold text-success"><?= $myApproved ?></div>
-        </div>
-      </div>
+    <div class="card">
+      <h3>อนุมัติแล้ว</h3>
+      <div class="value"><?= $approved ?></div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="text-muted small">ไม่อนุมัติ</div>
-          <div class="display-6 fw-bold text-danger"><?= $myRejected ?></div>
-        </div>
-      </div>
+    <div class="card">
+      <h3>ไม่อนุมัติ</h3>
+      <div class="value"><?= $rejected ?></div>
     </div>
   </div>
 
-  <!-- Recent PRs -->
-  <div class="card shadow-sm mt-4">
-    <div class="card-header bg-white">
-      <strong>รายการล่าสุดของฉัน</strong>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
+  <!-- Recent PR Table -->
+  <div class="recent-section">
+    <h2 style="color:#a5f3fc; margin-bottom:10px;">รายการขอซื้อล่าสุด</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>เลขที่ PR</th>
+          <th>วันที่สร้าง</th>
+          <th>สถานะ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if(empty($recent)): ?>
+          <tr><td colspan="3" style="text-align:center;color:#94a3b8;">ไม่มีข้อมูล</td></tr>
+        <?php else: ?>
+          <?php foreach($recent as $r): ?>
             <tr>
-              <th style="width: 140px;">PR No.</th>
-              <th style="width: 160px;">สถานะ</th>
-              <th style="width: 170px;">วันที่สร้าง</th>
-              <th style="width: 90px;"></th>
+              <td><?= htmlspecialchars($r['pr_no']) ?></td>
+              <td><?= date("d/m/Y", strtotime($r['request_date'])) ?></td>
+              <td>
+                <span class="badge <?= strtolower($r['status']) ?>">
+                  <?= htmlspecialchars($r['status']) ?>
+                </span>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            <?php if (empty($recent)): ?>
-              <tr><td colspan="4" class="text-center text-muted p-4">ยังไม่มีรายการ</td></tr>
-            <?php else: foreach ($recent as $r): ?>
-              <tr>
-                <td><?= htmlspecialchars($r['pr_no']) ?></td>
-                <td>
-                  <span class="badge <?= status_badge_class($r['status']) ?>">
-                    <?= htmlspecialchars($r['status']) ?>
-                  </span>
-                </td>
-                <td><?= !empty($r['request_date'])
-                        ? date('d M Y', strtotime($r['request_date']))
-                        : '-' ?></td>
-                <td><a class="btn btn-sm btn-outline-primary"
-                       href="pr_view.php?pr_no=<?= urlencode($r['pr_no']) ?>">ดู</a></td>
-              </tr>
-            <?php endforeach; endif; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="alert alert-info mt-4">
-    เคล็ดลับ: สถานะ <strong>submitted</strong> = รออนุมัติ, <strong>approved</strong> = อนุมัติแล้ว, <strong>rejected</strong> = ไม่อนุมัติ
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </tbody>
+    </table>
   </div>
 </div>
-
-<!-- <?php require_once __DIR__ . "/partials/staff_footer.php"; ?> -->
+</body>
+</html>

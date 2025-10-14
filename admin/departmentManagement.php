@@ -1,18 +1,21 @@
 <?php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../login.php");
-  exit();
-}
 include("../connect.php");
 
 // ดึงข้อมูลแผนกทั้งหมด
-$sql = "SELECT d.department_id, d.name, 
-        e.full_name AS head_name 
+$sql = "SELECT d.department_id, d.name, e.full_name AS head_name 
         FROM departments d
         LEFT JOIN employees e ON d.head_employee_id = e.employee_id
         ORDER BY d.name ASC";
 $result = $conn->query($sql);
+
+// ดึงรายชื่อพนักงาน (สำหรับเลือกหัวหน้าใน Modal)
+$employees = $conn->query("
+    SELECT employee_id, full_name
+    FROM employees
+    WHERE status='active'
+    ORDER BY full_name
+")->fetch_all(MYSQLI_ASSOC);
 
 require __DIR__ . '/partials/admin_header.php';
 ?>
@@ -51,6 +54,20 @@ require __DIR__ . '/partials/admin_header.php';
       box-shadow:0 4px 10px rgba(25,135,84,.2);
     }
     .btn-add:hover { opacity:.9; }
+    .modal-content {
+      border-radius:16px;
+      border:0;
+      box-shadow:0 10px 25px rgba(0,0,0,.2);
+    }
+    .modal-header {
+      background:linear-gradient(135deg,#0d6efd,#20c997);
+      color:#fff;
+      border-radius:16px 16px 0 0;
+    }
+    label { font-weight:500; }
+    select, input {
+      border-radius:8px !important;
+    }
   </style>
 </head>
 <body>
@@ -62,9 +79,9 @@ require __DIR__ . '/partials/admin_header.php';
       <h2 class="mb-1"><i class="bi bi-diagram-3 me-2"></i>จัดการแผนก</h2>
       <div class="small opacity-75">เพิ่ม แก้ไข หรือลบข้อมูลแผนกในระบบ</div>
     </div>
-    <a href="department_add.php" class="btn btn-add">
+    <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addDeptModal">
       <i class="bi bi-plus-lg me-1"></i> เพิ่มแผนก
-    </a>
+    </button>
   </div>
 
   <!-- Table -->
@@ -109,6 +126,48 @@ require __DIR__ . '/partials/admin_header.php';
   </div>
 </div>
 
+<!-- ======================== Modal เพิ่มแผนก ======================== -->
+<div class="modal fade" id="addDeptModal" tabindex="-1" aria-labelledby="addDeptModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST" action="department_save.php">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addDeptModalLabel">
+            <i class="bi bi-plus-circle me-2"></i> เพิ่มแผนกใหม่
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">ชื่อแผนก</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="เช่น ฝ่ายจัดซื้อ / ฝ่ายบัญชี" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="head_employee_id" class="form-label">หัวหน้าแผนก</label>
+            <select class="form-select" id="head_employee_id" name="head_employee_id">
+              <option value="">-- เลือกหัวหน้าแผนก --</option>
+              <?php foreach ($employees as $e): ?>
+                <option value="<?= $e['employee_id'] ?>"><?= htmlspecialchars($e['full_name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-save2 me-1"></i> บันทึก
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i> ยกเลิก
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== Script ======================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function confirmDelete(id) {
   Swal.fire({

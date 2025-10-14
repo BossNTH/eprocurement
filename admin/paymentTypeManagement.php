@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . "/partials/admin_header.php";
+require_once "../connect.php"; // อย่าลืมเชื่อม DB ก่อน
 $db = $GLOBALS['conn'] ?? $conn;
 
 /* ---------- Flash helper ---------- */
@@ -17,7 +17,7 @@ if(!isset($_SESSION['csrf'])) $_SESSION['csrf']=bin2hex(random_bytes(16));
 $CSRF=$_SESSION['csrf'];
 function check_csrf($t){return isset($_SESSION['csrf']) && hash_equals($_SESSION['csrf'],$t??'');}
 
-/* ---------- Actions ---------- */
+/* ---------- Actions (ส่วนนี้ต้องอยู่ก่อน include header) ---------- */
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $action=$_POST['action']??''; $csrf=$_POST['csrf']??'';
   if(!check_csrf($csrf)){ flash('โทเคนไม่ถูกต้อง','danger'); header("Location: paymentTypeManagement.php"); exit; }
@@ -58,6 +58,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   }
 }
 
+/* ---------- หลังจากประมวลผลแล้วค่อย include header ---------- */
+require_once __DIR__ . "/partials/admin_header.php";
+
+
 /* ---------- Read ---------- */
 $q=trim($_GET['q']??'');
 $where=" WHERE 1=1 "; $params=[]; $types='';
@@ -80,6 +84,8 @@ $stmt=$db->prepare($sql);
 $stmt->bind_param($types2,...$params2);
 $stmt->execute();
 $rs=$stmt->get_result();
+
+require_once __DIR__ . "/partials/admin_header.php";
 ?>
 
 <!DOCTYPE html>

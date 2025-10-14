@@ -1,10 +1,7 @@
 <?php
 // Devolper/department_delete.php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
-    exit();
-}
+
 require_once("../connect.php");
 
 // ให้ mysqli โยน exception เพื่อใช้ try/catch ได้สะดวก

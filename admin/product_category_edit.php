@@ -1,10 +1,7 @@
 <?php
 // product_category_edit.php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
-    exit();
-}
+
 
 require_once("../connect.php");
 

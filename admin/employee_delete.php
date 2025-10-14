@@ -2,10 +2,7 @@
 session_start();
 require_once("../connect.php");
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../index.php");
-  exit;
-}
+
 
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) {

@@ -1,15 +1,17 @@
 <?php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../login.php");
-  exit();
-}
-require_once("../connect.php");
 
+/* ✅ ต้อง include การเชื่อมต่อฐานข้อมูลก่อน */
+require_once __DIR__ . "/../connect.php";
+
+/* ✅ จากนั้นค่อย include header */
+require_once __DIR__ . "/partials/admin_header.php";
+
+/* ✅ กำหนดตัวแปร $db จาก $conn */
+$db = $GLOBALS['conn'] ?? $conn;
 // ดึงข้อมูลประเภทสินค้า
 $sql = "SELECT category_id, name FROM product_categories ORDER BY category_id ASC";
 $res = $conn->query($sql);
-require __DIR__ . '/partials/admin_header.php';
 ?>
 <!DOCTYPE html>
 <html lang="th">

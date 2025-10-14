@@ -2,10 +2,7 @@
 session_start();
 require_once("../connect.php");
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../index.php");
-  exit;
-}
+
 
 $page_title = "จัดการพนักงาน";
 $active_menu = "employees";

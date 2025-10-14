@@ -2,10 +2,7 @@
 session_start();
 require_once("../connect.php");
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  header("Location: ../login.php");
-  exit;
-}
+
 
 // รับค่าจากฟอร์ม
 $full_name = trim($_POST['full_name'] ?? '');
