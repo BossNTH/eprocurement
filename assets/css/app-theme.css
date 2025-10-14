@@ -1,0 +1,148 @@
+/* app-theme.css — Modern, clean, responsive theme
+   Palette: Indigo (primary), Slate (neutral), Teal (accent), Emerald (success), Amber (warning), Rose (danger)
+   Typography: Inter/Prompt fallback
+*/
+:root{
+  --font-sans: "Inter", "Prompt", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --radius-sm: .4rem; --radius: .8rem; --radius-lg: 1.2rem;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.06), 0 1px 1px rgba(0,0,0,.04);
+  --shadow-2: 0 6px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+  --bg: #0f172a;         /* slate-900 */
+  --panel: #0b1220;      /* deep panel */
+  --muted: #94a3b8;      /* slate-400 */
+  --text: #e5e7eb;       /* gray-200 */
+  --primary: #4f46e5;    /* indigo-600 */
+  --primary-700: #4338ca;
+  --accent: #14b8a6;     /* teal-500 */
+  --success: #10b981;    /* emerald-500 */
+  --warning: #f59e0b;    /* amber-500 */
+  --danger: #f43f5e;     /* rose-500 */
+  --line: rgba(148,163,184,.25);
+  --surface: #111827;    /* gray-900 */
+  --surface-2: #0b1324;
+  --chip: rgba(79,70,229,.12);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family: var(--font-sans);
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(79,70,229,.15), transparent 60%),
+              radial-gradient(800px 400px at 90% 10%, rgba(20,184,166,.10), transparent 55%),
+              var(--bg);
+  color:var(--text); line-height:1.6;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1200px; margin-inline:auto; padding:24px}
+
+h1,h2,h3{line-height:1.25; margin:0 0 .6rem}
+h1{font-size:clamp(1.6rem, 1rem + 2vw, 2.2rem); letter-spacing:.2px}
+h2{font-size:1.4rem}
+h3{font-size:1.1rem; color:var(--muted)}
+
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-1);
+  padding:18px 18px;
+}
+.card:hover{box-shadow:var(--shadow-2); border-color:rgba(148,163,184,.4)}
+
+.grid{display:grid; gap:16px}
+.grid.cols-2{grid-template-columns: repeat(2, minmax(0,1fr))}
+.grid.cols-3{grid-template-columns: repeat(3, minmax(0,1fr))}
+@media (max-width: 900px){ .grid.cols-2,.grid.cols-3{grid-template-columns:1fr} }
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  border-radius:999px; padding:10px 16px; border:1px solid transparent;
+  font-weight:600; letter-spacing:.2px; cursor:pointer; transition:.2s;
+  background:var(--surface); color:var(--text); border-color:var(--line);
+}
+.btn:hover{transform:translateY(-1px); border-color:rgba(148,163,184,.45)}
+.btn.primary{background:var(--primary); border-color:transparent}
+.btn.primary:hover{background:var(--primary-700)}
+.btn.ghost{background:transparent}
+.btn.success{background:var(--success)}
+.btn.warn{background:var(--warning); color:#111827}
+.btn.danger{background:var(--danger)}
+
+.input, select, textarea{
+  width:100%; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); padding:10px 12px; color:var(--text);
+  outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.input:focus, select:focus, textarea:focus{border-color:rgba(79,70,229,.6); box-shadow:0 0 0 4px rgba(79,70,229,.18)}
+
+.row{display:grid; gap:12px; grid-template-columns:repeat(12, 1fr)}
+.col-6{grid-column:span 6} .col-4{grid-column:span 4} .col-3{grid-column:span 3} .col-12{grid-column:span 12}
+@media (max-width: 900px){ .col-6,.col-4,.col-3{grid-column:span 12} }
+
+.table{
+  width:100%; border-collapse:separate; border-spacing:0; font-size:.95rem;
+  border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; background:var(--surface);
+}
+.table thead th{
+  text-align:left; font-weight:700; color:#cbd5e1; background:linear-gradient(180deg, rgba(148,163,184,.15), rgba(148,163,184,.05));
+  padding:12px; border-bottom:1px solid var(--line)
+}
+.table tbody td{padding:12px; border-bottom:1px dashed var(--line); color:#e2e8f0}
+.table tbody tr:hover{background:rgba(79,70,229,.07)}
+.table tbody tr:last-child td{border-bottom:none}
+
+.badge{
+  display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px;
+  border:1px solid var(--line); background:var(--chip); color:#dbeafe; font-weight:600; font-size:.83rem
+}
+.badge .dot{width:8px; height:8px; border-radius:999px; background:var(--primary)}
+
+.kbd{border:1px solid var(--line); background:var(--surface); border-radius:.5rem; padding:2px 6px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size:.8rem; color:#e5e7eb}
+
+.toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:12px}
+.toolbar .search{flex:1; min-width:220px}
+.toolbar .chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{
+  background:rgba(148,163,184,.12); border:1px solid var(--line); color:#cbd5e1; padding:6px 10px; border-radius:999px; font-weight:600;
+}
+.chip.active{background:rgba(79,70,229,.18); color:#e0e7ff; border-color:rgba(79,70,229,.5)}
+
+.navbar{
+  position:sticky; top:0; z-index:50; backdrop-filter: blur(6px);
+  background:linear-gradient(180deg, rgba(15,23,42,.65), rgba(15,23,42,.35)), rgba(2,6,23,.3);
+  border-bottom:1px solid var(--line);
+}
+.navbar .inner{display:flex; align-items:center; justify-content:space-between; padding:16px 24px}
+.brand{display:flex; align-items:center; gap:10px; font-weight:800}
+.brand .logo{width:28px; height:28px; border-radius:8px; background:radial-gradient(circle at 30% 30%, #a78bfa, transparent 60%), radial-gradient(circle at 70% 70%, #14b8a6, transparent 55%), var(--primary)}
+
+.sidebar{
+  position:sticky; top:72px; align-self:start; height:calc(100dvh - 72px); overflow:auto;
+  border-right:1px solid var(--line); padding:12px; min-width:240px; background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+}
+.sidebar a{display:flex; gap:10px; padding:10px 12px; border-radius:.6rem; color:#cbd5e1; border:1px solid transparent}
+.sidebar a:hover{background:rgba(148,163,184,.08); border-color:var(--line)}
+.sidebar a.active{background:rgba(79,70,229,.20); color:#eef2ff; border-color:rgba(79,70,229,.45)}
+
+.footer{margin-top:24px; padding:24px; color:var(--muted); border-top:1px solid var(--line)}
+
+.alert{padding:12px 14px; border-radius:.75rem; border:1px solid var(--line); background:rgba(79,70,229,.08)}
+.alert.success{background:rgba(16,185,129,.12); border-color:rgba(16,185,129,.35)}
+.alert.warn{background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.35)}
+.alert.danger{background:rgba(244,63,94,.12); border-color:rgba(244,63,94,.35)}
+
+.modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:100}
+.modal{width:min(720px, 92vw); background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-lg); padding:18px}
+.modal.open + .modal-backdrop{display:flex}
+
+.table-actions{display:flex; gap:8px; align-items:center}
+.icon{width:18px; height:18px; display:inline-block; border-radius:4px; background:linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.05)); mask-size:contain; mask-repeat:no-repeat; mask-position:center}
+.icon.edit{mask-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>')}
+.icon.trash{mask-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8a2 2 0 002-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>')}
+.icon.view{mask-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" viewBox="0 0 24 24"><path d="M12 6a9.77 9.77 0 019 6 9.77 9.77 0 01-18 0 9.77 9.77 0 019-6zm0 2a4 4 0 100 8 4 4 0 000-8z"/></svg>')}
+/* Utility spacing */
+.mt-1{margin-top:4px} .mt-2{margin-top:8px} .mt-3{margin-top:12px} .mt-4{margin-top:16px}
+.mb-1{margin-bottom:4px} .mb-2{margin-bottom:8px} .mb-3{margin-bottom:12px} .mb-4{margin-bottom:16px}
+.py-2{padding-block:8px} .py-3{padding-block:12px} .px-2{padding-inline:8px} .px-3{padding-inline:12px}
+.hidden{display:none}

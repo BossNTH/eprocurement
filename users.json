@@ -1,0 +1,38 @@
+[
+    {
+        "username": "admin1",
+        "password": "adminpass",
+        "role": "admin",
+        "name": "Administrator"
+    },
+    {
+        "username": "emp1",
+        "password": "emppass",
+        "role": "employee",
+        "name": "Employee User"
+    },
+    {
+        "username": "mgr1",
+        "password": "mgrpass",
+        "role": "manager",
+        "name": "Manager User"
+    },
+    {
+        "username": "proc1",
+        "password": "procpass",
+        "role": "procurement",
+        "name": "Procurement User"
+    },
+    {
+        "username": "appr1",
+        "password": "apprpass",
+        "role": "procurement_manager",
+        "name": "Approver User"
+    },
+    {
+        "username": "sup1",
+        "password": "suppass",
+        "role": "supplier",
+        "name": "Supplier User"
+    }
+]
