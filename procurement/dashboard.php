@@ -16,8 +16,8 @@ $counts = [
 $q1 = $conn->query("SELECT COUNT(*) AS c FROM products");
 $counts['products'] = (int)$q1->fetch_assoc()['c'];
 
-/* ใบขอซื้อที่อนุมัติ */
-$q2 = $conn->query("SELECT COUNT(*) AS c FROM purchase_requisitions WHERE status='approved'");
+/* ใบขอซื้อที่อนุมัติ (enum value: MANAGER_APPROVED) */
+$q2 = $conn->query("SELECT COUNT(*) AS c FROM purchase_requisitions WHERE status='APPROVE'");
 $counts['approved_pr'] = (int)$q2->fetch_assoc()['c'];
 
 /* ใบเสนอราคาที่บันทึกแล้ว */
@@ -30,19 +30,19 @@ $counts['orders'] = (int)$q4->fetch_assoc()['c'];
 
 /* ---------- ดึงใบขอซื้ออนุมัติล่าสุด ---------- */
 $recentPR = $conn->query("
-  SELECT pr_no, request_date, need_by_date, requested_by
-  FROM purchase_requisitions
-  WHERE status='approved'
-  ORDER BY request_date DESC
-  LIMIT 5
+    SELECT pr_no, request_date, need_by_date, requested_by
+    FROM purchase_requisitions
+    WHERE status='APPROVE'
+    ORDER BY request_date DESC
+    LIMIT 5
 ");
 
 /* ---------- ดึงใบสั่งซื้อล่าสุด ---------- */
 $recentPO = $conn->query("
-  SELECT po_no, needed_date, supplier_id 
-  FROM purchase_orders
-  ORDER BY needed_date DESC
-  LIMIT 5
+    SELECT po_no, po_date, needed_date, supplier_id 
+    FROM purchase_orders
+    ORDER BY needed_date DESC
+    LIMIT 5
 ");
 ?>
 
@@ -198,7 +198,7 @@ $recentPO = $conn->query("
                                 <?php if ($recentPO->num_rows): while ($r = $recentPO->fetch_assoc()): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($r['po_no']) ?></td>
-                                            <td><?= date("d/m/Y", strtotime($r['order_date'])) ?></td>
+                                            <td><?= date("d/m/Y", strtotime($r['po_date'])) ?></td>
                                             <td><?= htmlspecialchars($r['supplier_id']) ?></td>
                                         </tr>
                                     <?php endwhile;

@@ -115,7 +115,11 @@ h2 {
 .modal-header, .modal-footer {
   border-color: #334155;
 }
+
+
 </style>
+
+
 
 <div class="page-container">
   <h2><i class="bi bi-receipt"></i> ใบสั่งซื้อของคุณ (Purchase Orders)</h2>
@@ -175,6 +179,9 @@ h2 {
     </div>
   </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 $(document).ready(function(){

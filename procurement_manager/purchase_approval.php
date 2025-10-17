@@ -36,14 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['po_no'], $_POST['acti
 
 
 
-    echo "<script>
+    echo " <script>
         Swal.fire({
             icon: 'success',
             title: 'ดำเนินการเรียบร้อยแล้ว!',
             text: 'สถานะใบสั่งซื้อถูกอัปเดตสำเร็จ',
             confirmButtonColor: '#10b981'
         }).then(() => window.location='purchase_approval.php');
-    </script>";
+    </script> ";
     exit();
 }
 
